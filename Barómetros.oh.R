@@ -747,6 +747,8 @@ duracion(total)
 
 # total 16.32
 
+# duración media de pregunta S_A_D 352 segundos; 5,52 minutos 
+
 # gráfico
 
 grafo12<-data.frame(modulo.q)
