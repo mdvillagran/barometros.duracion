@@ -5,13 +5,13 @@ library(lubridate)
 
 setwd("C:/Users/villagran/Desktop/datavoz/Barometros/Informe pre test/nhuble.losrios")
 
-duracion<-read_spss("Barometro_2022-abr-22_2022_11_05_12_58.sav")
+duracion<-read_spss("Barometro_2022-abr-22_2022_16_05_09_37_R14.sav")
 
 # selección de variables de tiempo
-
-losrios<-duracion %>% filter(region==14)
-
-duracion1<-losrios %>% dplyr:: select(ends_with("_D"))
+# 
+# losrios<-duracion %>% filter(region==14)
+# 
+ duracion1<-duracion %>% dplyr:: select(ends_with("_D"))
 
 # identificar comienzo de las preguntas de la encuesta
 
@@ -47,6 +47,11 @@ ranking<-ranking %>%
          Minutos = minute(seconds_to_period(total))) 
 
 
+# FIJAMOS EL LÍMITE EN 4, CON EL OBJETIVO DE DEJAR LOS 10 CASOS DE MAYOR DURACIÓN
+duraciones.may<-subset(ranking, minutos.totales>42)
+
+duraciones.men<-subset(ranking, minutos.totales<26)
+
 
 
 
@@ -55,55 +60,56 @@ ranking<-ranking %>%
 
 # p1_a_D - p4_D
 modulo1<-duracion1[,1:7]
-modulo1$id<-losrios$Srvyr
+modulo1$id<-duracion$Srvyr
 
 # p5_1_D - p7_D
 modulo2<-duracion1[,8:20]
-modulo2$id<-losrios$Srvyr
+modulo2$id<-duracion$Srvyr
 
 # p8_D - p11_12_D
 modulo3<-duracion1[,21:46]
-modulo3$id<-losrios$Srvyr
+modulo3$id<-duracion$Srvyr
 
 # p12_1_D - p14_1_D
 modulo4<-duracion1[,47:63]
-modulo4$id<-losrios$Srvyr
+modulo4$id<-duracion$Srvyr
 
 # p16_1_D - p17_7_D
 modulo5<-duracion1[,64:77]
-modulo5$id<-losrios$Srvyr
+modulo5$id<-duracion$Srvyr
 
 # P18_a_D - p18_c_D
 modulo6<-duracion1[,78:80]
-modulo6$id<-losrios$Srvyr
+modulo6$id<-duracion$Srvyr
 
 # p19_a_D - p23_12_D
-modulo7<-duracion1[,81:90]
-modulo7$id<-losrios$Srvyr
+modulo7<-duracion1[,81:101]
+modulo7$id<-duracion$Srvyr
 
 # p26_1_D - p31_D
 modulo8<-duracion1[,102:123]
-modulo8$id<-losrios$Srvyr
+modulo8$id<-duracion$Srvyr
 
 # p32_D - p33_c_D
 modulo9<-duracion1[,124:127]
-modulo9$id<-losrios$Srvyr
+modulo9$id<-duracion$Srvyr
 
 # p35_D - p37_D
 modulo10<-duracion1[,128:130]
-modulo10$id<-losrios$Srvyr
+modulo10$id<-duracion$Srvyr
 
 # p39_D - p41_D
 modulo11<-duracion1[,131:133]
-modulo11$id<-losrios$Srvyr
+modulo11$id<-duracion$Srvyr
 
 # LR31_D - LR5_3_D
 modulo12r<-duracion1[,150:156]
-modulo12r$id<-losrios$Srvyr
+modulo12r$id<-duracion$Srvyr
 
 # S1_sexo_D
 modulo13<-duracion1[,157:185]
-modulo13$id<-losrios$Srvyr
+modulo13$id<-duracion$Srvyr
+
 
 modulos<-list("modulo1"= modulo1, "modulo2" = modulo2, "modulo3" = modulo3, "modulo4" = modulo4,
               "modulo5" = modulo5, "modulo6" = modulo6, "modulo7" = modulo7, "modulo8" = modulo8,
@@ -119,9 +125,15 @@ modulo1$total<-rowSums(modulo1[,1:7], na.rm = T)
 
 modulo1$total.minutos<-modulo1$total%/%60
 
+
+# quitamos registros outliers
+
+modulo1<-subset(modulo1, total.minutos<26)
+
 # media de duración del modulo
 
 media.modulo<-colMeans(modulo1[,1:7], na.rm = T) # en segundos
+
 
 #-----------
 
@@ -137,7 +149,7 @@ objeto1+objeto2
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 4.35
+# total 4.01
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -158,7 +170,7 @@ for (i in modulo1[,1:7]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
   
-# total 1.27
+# total 4.39
 
 # gráfico
 
@@ -186,7 +198,7 @@ media.modulo<-colMeans(modulo2[,8:13], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 3.5
+# total 1.40
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -207,7 +219,7 @@ for (i in modulo2[,1:13]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 3.01
+# total 2.59
 
 # gráfico
 
@@ -235,7 +247,7 @@ media.modulo<-colMeans(modulo3[,1:26], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 2.33
+# total 2.14
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -256,7 +268,7 @@ for (i in modulo3[,1:26]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 2.26
+# total 2.04
 
 # gráfico
 
@@ -286,7 +298,7 @@ media.modulo<-colMeans(modulo4[,1:17], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 1.53
+# total 1.10
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -338,7 +350,7 @@ media.modulo<-colMeans(modulo5[,1:14], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 1.27
+# total 1.25
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -359,7 +371,7 @@ for (i in modulo5[,1:14]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 1.35
+# total 1.19
 
 # gráfico
 
@@ -410,7 +422,7 @@ for (i in modulo6[,1:3]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 0.36
+# total 0.27
 
 # gráfico
 
@@ -439,7 +451,7 @@ media.modulo<-colMeans(modulo7[,1:10], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 4.28
+# total 2.13
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -460,7 +472,7 @@ for (i in modulo7[,1:10]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 3.25
+# total 2.38
 
 # gráfico
 
@@ -488,7 +500,7 @@ media.modulo<-colMeans(modulo8[,1:22], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 3.01
+# total 2.02
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -509,7 +521,7 @@ for (i in modulo8[,1:22]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 3.13
+# total 2.23
 
 # gráfico
 
@@ -538,7 +550,7 @@ media.modulo<-colMeans(modulo9[,1:4], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 0.53
+# total 0.31
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -559,7 +571,7 @@ for (i in modulo9[,1:4]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 1
+# total 0.35
 
 # gráfico
 
@@ -590,7 +602,7 @@ media.modulo<-colMeans(modulo10[,1:3], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 1.22
+# total 0.25
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -611,7 +623,7 @@ for (i in modulo10[,1:3]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 1.11
+# total 0.29
 
 # gráfico
 
@@ -663,7 +675,7 @@ for (i in modulo11[,1:3]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 0.27
+# total 0.21
 
 # gráfico
 
@@ -712,7 +724,7 @@ for (i in modulo12r[,1:5]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 1.19
+# total 1.01
 
 # gráfico
 
@@ -761,8 +773,11 @@ modulo13$total<-rowSums(modulo13[1:27], na.rm = T)
 modulo13$total.minutos<-modulo13$total%/%60
 
 # media de duración del modulo
+# quitamos registros outliers
 
+modulo13<-subset(modulo13, total.minutos<31)
 media.modulo<-colMeans(modulo13[,1:27], na.rm = T) # en segundos
+
 
 
 # media de duración del módulo transformación a minutos y segundos
@@ -770,7 +785,7 @@ media.modulo<-colMeans(modulo13[,1:27], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 17.47
+# total 10.42
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -791,7 +806,7 @@ for (i in modulo13[,1:27]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 16.32
+# total 14.04
 
 # duración media de pregunta S_A_D 352 segundos; 5,52 minutos 
 
@@ -828,7 +843,7 @@ totales$t.min<-duracion(totales$suma.t)
 
 
 
-
+duracion(1606.2)
 
 
 

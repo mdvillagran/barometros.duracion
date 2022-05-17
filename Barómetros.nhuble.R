@@ -5,13 +5,13 @@ library(lubridate)
 
 setwd("C:/Users/villagran/Desktop/datavoz/Barometros/Informe pre test/nhuble.losrios")
 
-duracion<-read_spss("Barometro_2022-abr-22_2022_11_05_12_58.sav")
+duracion<-read_spss("Barometro_2022-abr-22_2022_16_05_09_37_R16.sav")
 
 # selección de variables de tiempo
 
-nhuble<-duracion %>% filter(region==16)
+# nhuble<-duracion %>% filter(region==16)
 
-duracion1<-nhuble %>% dplyr:: select(ends_with("_D"))
+duracion1<-duracion %>% dplyr:: select(ends_with("_D"))
 
 # identificar comienzo de las preguntas de la encuesta
 
@@ -45,6 +45,14 @@ ranking$minutos.totales<-ranking$total%/%60
 ranking<-ranking %>%
   mutate(Horas = hour(seconds_to_period(total)),
          Minutos = minute(seconds_to_period(total))) 
+
+
+
+# FIJAMOS EL LÍMITE EN 4, CON EL OBJETIVO DE DEJAR LOS 10 CASOS DE MAYOR DURACIÓN
+duraciones.may<-subset(ranking, minutos.totales>42)
+
+duraciones.men<-subset(ranking, minutos.totales<26)
+
 
 
 
