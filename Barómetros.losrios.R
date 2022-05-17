@@ -437,13 +437,13 @@ grafo6$nombres<-nombres
 ###############################################################################
 
 
-modulo7$total<-rowSums(modulo7[,1:10], na.rm = T)
+modulo7$total<-rowSums(modulo7[,1:21], na.rm = T)
 
 modulo7$total.minutos<-modulo7$total%/%60
 
 # media de duración del modulo
 
-media.modulo<-colMeans(modulo7[,1:10], na.rm = T) # en segundos
+media.modulo<-colMeans(modulo7[,1:21], na.rm = T) # en segundos
 
 
 # media de duración del módulo transformación a minutos y segundos
@@ -451,7 +451,7 @@ media.modulo<-colMeans(modulo7[,1:10], na.rm = T) # en segundos
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 2.13
+# total 2.49
 
 
 # Media de cuartiles (se tomó el tercer cuartil como referencia)
@@ -460,7 +460,7 @@ modulo.q<-c()
 
 # filas con preguntas
 
-for (i in modulo7[,1:10]){
+for (i in modulo7[,1:21]){
   objeto<-unname(i)
   registro<-quantile(objeto, prob =(0.75),na.rm=T)
   #print(registro)
@@ -472,7 +472,7 @@ for (i in modulo7[,1:10]){
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 2.38
+# total 3.13
 
 # gráfico
 
