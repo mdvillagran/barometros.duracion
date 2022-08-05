@@ -13,6 +13,8 @@ duracion1<-subset(duracion, region==13)
 
 duracion1<- duracion1 %>% filter(Status %in% c("Approved", "Requires Approval"))
 
+# duracion1 <- duracion1[!is.na(duracion1$S1_sexo),]
+
 # selección de variables de tiempo
 
 duracion2<-duracion1 %>% dplyr:: select(ends_with("_D"))
@@ -22,9 +24,37 @@ duracion2<-duracion1 %>% dplyr:: select(ends_with("_D"))
 
 duracion2<-duracion2 %>% dplyr::select(-(I_1_tipo_vivienda_D:I_6_I_3_I_3_acepta_1_D))
 
-duracion2<-duracion2 %>% dplyr::select(-(LL1_D:BIOBIO_3_5_D))
+variables.regionales<-c("RM_1_1_D","RM_1_2_D","RM_1_3_D","RM_1_4_D","RM_1_5_D",
+                        "RM_1_6_D","RM_1_7_D","RM_1_8_D","RM_2_D","RM_3_D",
+                        "BIOBIO_1_1_D","BIOBIO_1_2_D","BIOBIO_1_3_D","RM_4_1_D",
+                        "RM_4_2_D","RM_4_3_D","RM_4_4_D","LL1_D","LL2_D","LL3_D",
+                        "LL4_D","OH1_1_D","OH1_2_D","OH1_3_D","OH2_D","OH3_D",
+                        "OH4_D","OH5_D","NU1_D","NU2_D","NU3_D","NU4_D","NU5_D",
+                        "LR1_D","LR2_D","LR3_D","LR4_D","LR5_1_D" ,"LR5_2_D" ,"LR5_3_D" ,
+                        "BB1_1_D","BB1_2_D","BB1_3_D","BB1_4_D","BB1_5_D","BB1_6_D",
+                        "BB1_7_D","BB2_1_D","BB2_2_D","BB2_3_D","BB2_4_D","BB2_5_D",
+                        "BB3_1_D","BB3_2_D","BB3_3_D","BB3_4_D" ,"BB3_5_D","BB3_6_D",
+                        "BB3_7_D","BB3_8_D","BB3_9_D","BB3_10_D","BB3_11_D","BB3_12_D",
+                        "BB3_13_D" ,"BB3_14_D" ,
+                        "BIOBIO_2_2_D" ,"BIOBIO_2_3_D","BIOBIO_3_1_D","BIOBIO_3_2_D","BIOBIO_3_3_D",
+                        "BIOBIO_3_4_D", "BIOBIO_3_5_D",
+                        "BIOBIO_1_1_D","BIOBIO_1_2_D","BIOBIO_1_3_D")
 
-duracion2<-duracion2 %>% dplyr::select(-(BIOBIO_1_1_D:BIOBIO_1_3_D))
+
+variable.regional.de.interes<-c("BIOBIO_2_2_D" ,"BIOBIO_2_3_D","BIOBIO_3_1_D","BIOBIO_3_2_D","BIOBIO_3_3_D",
+                                "BIOBIO_3_4_D", "BIOBIO_3_5_D")
+
+
+(varriables.a.borrar<-setdiff(variables.regionales,variable.regional.de.interes))
+
+
+
+duracion2 <- duracion2[ , !(names(duracion2) %in% varriables.a.borrar)]
+
+
+# check
+
+names(duracion2)
 
 # identificar comienzo de las preguntas de la encuesta
 
