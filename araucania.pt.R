@@ -3,41 +3,87 @@ library(haven)
 library(dplyr)
 library(lubridate)
 
-setwd("C:/Users/villagran/Desktop/datavoz/Barometros/Informe pre test/nhuble.losrios")
 
-duracion<-read_spss("Barometro_2022-abr-22_2022_16_05_09_37_R14.sav")
+rm(list = ls())
+setwd("C:/Users/villagran/Desktop/datavoz/Barometros/Informe pre test/")
 
-# selecci?n de variables de tiempo
-# 
-# losrios<-duracion %>% filter(region==14)
-# 
- duracion1<-duracion %>% dplyr:: select(ends_with("_D"))
+duracion<-read_spss("araucania.sav")
+
+duracion1<-subset(duracion, region==9)
+
+duracion1<- duracion1 %>% filter(Status %in% c("Approved", "Requires Approval"))
+
+# duracion1 <- duracion1[!is.na(duracion1$S1_sexo),]
+
+# selección de variables de tiempo
+
+duracion2<-duracion1 %>% dplyr:: select(ends_with("_D"))
+
+
+# Eliminamos preguntas regionales de otras regiones y de incidencias
+
+duracion2<-duracion2 %>% dplyr::select(-(I_1_tipo_vivienda_D:I_6_I_3_I_3_acepta_1_D))
+
+variables.regionales<-c("RM_1_1_D","RM_1_2_D","RM_1_3_D","RM_1_4_D","RM_1_5_D",
+                        "RM_1_6_D","RM_1_7_D","RM_1_8_D","RM_2_D","RM_3_D",
+                        "BIOBIO_1_1_D","BIOBIO_1_2_D","BIOBIO_1_3_D","RM_4_1_D",
+                        "RM_4_2_D","RM_4_3_D","RM_4_4_D","LL1_D","LL2_D","LL3_D",
+                        "LL4_D","OH1_1_D","OH1_2_D","OH1_3_D","OH2_D","OH3_D",
+                        "OH4_D","OH5_D","NU1_D","NU2_D","NU3_D","NU4_D","NU5_D",
+                        "LR1_D","LR2_D","LR3_D","LR4_D","LR5_1_D" ,"LR5_2_D" ,"LR5_3_D" ,
+                        "BB1_1_D","BB1_2_D","BB1_3_D","BB1_4_D","BB1_5_D","BB1_6_D",
+                        "BB1_7_D","BB2_1_D","BB2_2_D","BB2_3_D","BB2_4_D","BB2_5_D",
+                        "BB3_1_D","BB3_2_D","BB3_3_D","BB3_4_D" ,"BB3_5_D","BB3_6_D",
+                        "BB3_7_D","BB3_8_D","BB3_9_D","BB3_10_D","BB3_11_D","BB3_12_D",
+                        "BB3_13_D" ,"BB3_14_D" ,"BIOBIO_2_1_D","BIOBIO_2_2_D" ,
+                        "BIOBIO_2_3_D","BIOBIO_3_1_D","BIOBIO_3_2_D","BIOBIO_3_3_D",
+                        "BIOBIO_3_4_D", "BIOBIO_3_5_D",
+                        "BIOBIO_1_1_D","BIOBIO_1_2_D","BIOBIO_1_3_D")
+
+
+variable.regional.de.interes<-c("AR1_1_D","AR1_2_D","AR1_3_D","AR2_D" , "AR3_D",
+                                "AR4_1_D","AR4_2_D","AR4_3_D",
+                                "AR4_4_D","AR4_5_D","AR4_6_D",
+                                "AR4_7_D","AR5_1_D", "AR5_2_D",
+                                "AR5_3_D")
+
+
+(varriables.a.borrar<-setdiff(variables.regionales,variable.regional.de.interes))
+
+
+
+duracion2 <- duracion2[ , !(names(duracion2) %in% varriables.a.borrar)]
+
+
+# check
+
+names(duracion2)
 
 # identificar comienzo de las preguntas de la encuesta
 
-variables<-names(duracion1)
+variables<-names(duracion2)
 
 grep("p1_a_D", variables)
 
-# Extraemos las duraciones de inter?s
+# Extraemos las duraciones de interés
 
-duracion1<-duracion1[,892:1074]
+duracion2<-duracion2[,8:ncol(duracion2)]
 
-duracion1$total<-rowSums(duracion1, na.rm = T)
+duracion2$total<-rowSums(duracion2, na.rm = T)
 
-duracion1$id<-(row.names(duracion1))
+duracion2$id<-(row.names(duracion2))
 
-id<-duracion1[,c("total", "id")]
-
-
-# Ordenamiento en cuanto a variables sociodemogr?ficas
+id<-duracion2[,c("total", "id")]
 
 
-duracion$id<-row.names(duracion)
+# Ordenamiento en cuanto a variables sociodemográficas
 
-duracion<-merge(duracion, id, all.x = T)
 
-ranking<-duracion[,c("total", "id", "S1_sexo", "S4_nivel_estudio", "S2_edad")]
+duracion1$id<-row.names(duracion1)
+
+duracion1<-merge(duracion1, id, all.x = T)
+
+ranking<-duracion1[,c("total", "id", "S1_sexo", "S4_nivel_estudio", "S2_edad")]
 
 
 ranking$minutos.totales<-ranking$total%/%60
@@ -47,110 +93,91 @@ ranking<-ranking %>%
          Minutos = minute(seconds_to_period(total))) 
 
 
-# FIJAMOS EL L?MITE EN 4, CON EL OBJETIVO DE DEJAR LOS 10 CASOS DE MAYOR DURACI?N
-duraciones.may<-subset(ranking, minutos.totales>42)
+duraciones.may<-subset(ranking, minutos.totales>25)
 
 duraciones.men<-subset(ranking, minutos.totales<26)
+
+
 
 
 
 # modulos
 
 # p1_a_D - p4_D
-modulo1<-duracion1[,1:7]
-modulo1$id<-duracion$Srvyr
+modulo1<-duracion2[,1:7]
 
 # p5_1_D - p7_D
-modulo2<-duracion1[,8:20]
-modulo2$id<-duracion$Srvyr
+modulo2<-duracion2[,8:20]
 
 # p8_D - p11_12_D
-modulo3<-duracion1[,21:46]
-modulo3$id<-duracion$Srvyr
+modulo3<-duracion2[,21:46]
 
 # p12_1_D - p14_1_D
-modulo4<-duracion1[,47:63]
-modulo4$id<-duracion$Srvyr
+modulo4<-duracion2[,47:63]
 
 # p16_1_D - p17_7_D
-modulo5<-duracion1[,64:77]
-modulo5$id<-duracion$Srvyr
+modulo5<-duracion2[,64:77]
 
 # P18_a_D - p18_c_D
-modulo6<-duracion1[,78:80]
-modulo6$id<-duracion$Srvyr
+modulo6<-duracion2[,78:80]
 
 # p19_a_D - p23_12_D
-modulo7<-duracion1[,81:101]
-modulo7$id<-duracion$Srvyr
+modulo7<-duracion2[,81:101]
+
 
 # p26_1_D - p31_D
-modulo8<-duracion1[,102:123]
-modulo8$id<-duracion$Srvyr
+modulo8<-duracion2[,102:123]
 
 # p32_D - p33_c_D
-modulo9<-duracion1[,124:127]
-modulo9$id<-duracion$Srvyr
+modulo9<-duracion2[,124:127]
 
 # p35_D - p37_D
-modulo10<-duracion1[,128:130]
-modulo10$id<-duracion$Srvyr
+modulo10<-duracion2[,128:130]
 
 # p39_D - p41_D
-modulo11<-duracion1[,131:133]
-modulo11$id<-duracion$Srvyr
+modulo11<-duracion2[,131:133]
 
-# LR31_D - LR5_3_D
-modulo12r<-duracion1[,150:156]
-modulo12r$id<-duracion$Srvyr
+# modulo12regional
+
+modulo12r<-duracion2[,134:148]
+
 
 # S1_sexo_D
-modulo13<-duracion1[,157:185]
-modulo13$id<-duracion$Srvyr
+modulo13<-duracion2[,149:176]
 
 
-modulos<-list("modulo1"= modulo1, "modulo2" = modulo2, "modulo3" = modulo3, "modulo4" = modulo4,
-              "modulo5" = modulo5, "modulo6" = modulo6, "modulo7" = modulo7, "modulo8" = modulo8,
-              "modulo9" = modulo9, "modulo10" = modulo10, "modulo11" = modulo11, "modulo12r" = modulo12r,
-              "modulo13" = modulo13)
 
 
 ##############################################################################
 #################################  modulo 1  ##################################
 ##############################################################################
 
-modulo1$total<-rowSums(modulo1[,1:7], na.rm = T)
+modulo1$total<-rowSums(modulo1, na.rm = T)
 
 modulo1$total.minutos<-modulo1$total%/%60
 
-
-# quitamos registros outliers
-
-modulo1<-subset(modulo1, total.minutos<26)
-
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo1[,1:7], na.rm = T) # en segundos
-
 
 #-----------
 
 duracion <- function(segundos){
-objeto1 = segundos%/%60
-objeto2 =  (floor(segundos-(objeto1*60)))/100
-objeto1+objeto2
+  objeto1 = segundos%/%60
+  objeto2 =  (floor(segundos-(objeto1*60)))/100
+  objeto1+objeto2
 }
 
 #----------
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 4.01
+# total 0.3
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -161,16 +188,16 @@ for (i in modulo1[,1:7]){
   registro<-quantile(objeto, prob =(0.75),na.rm=T)
   #print(registro)
   modulo.q<-append(modulo.q,registro)
-  }
+}
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
-  
-# total 4.39
 
-# gr?fico
+# total 2.18
+
+# gráfico
 
 grafo1<-data.frame(modulo.q)
 nombres<-names(modulo1)[1:7]
@@ -182,24 +209,24 @@ grafo1$nombres<-nombres
 #################################  modulo 2  ##################################
 ###############################################################################
 
-modulo2$total<-rowSums(modulo2[,8:13], na.rm = T)
+modulo2$total<-rowSums(modulo2, na.rm = T)
 
 modulo2$total.minutos<-modulo2$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
-media.modulo<-colMeans(modulo2[,8:13], na.rm = T) # en segundos
+media.modulo<-colMeans(modulo2[,1:13], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 1.40
+# total 3.06
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -212,14 +239,14 @@ for (i in modulo2[,1:13]){
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 2.59
+# total 3.01
 
-# gr?fico
+# gráfico
 
 grafo2<-data.frame(modulo.q)
 nombres<-names(modulo1)[1:13]
@@ -232,23 +259,23 @@ grafo2$nombres<-nombres
 ###############################################################################
 
 
-modulo3$total<-rowSums(modulo3[,1:26], na.rm = T)
+modulo3$total<-rowSums(modulo3, na.rm = T)
 
 modulo3$total.minutos<-modulo3$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo3[,1:26], na.rm = T) # en segundos
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 2.14
+# total 3.36
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -261,14 +288,14 @@ for (i in modulo3[,1:26]){
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 2.04
+# total 2.26
 
-# gr?fico
+# gráfico
 
 grafo3<-data.frame(modulo.q)
 nombres<-names(modulo1)[1:26]
@@ -282,44 +309,44 @@ grafo3$nombres<-nombres
 ###############################################################################
 
 
-modulo4$total<-rowSums(modulo4[,1:17], na.rm = T)
+modulo4$total<-rowSums(modulo4, na.rm = T)
 
 modulo4$total.minutos<-modulo4$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo4[,1:17], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 1.10
+# total 2.05
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
 # filas con preguntas
 
-for (i in modulo4[,1:17]){
+for (i in modulo4[,1:18]){
   objeto<-unname(i)
   registro<-quantile(objeto, prob =(0.75),na.rm=T)
   #print(registro)
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
 # total 2
 
-# gr?fico
+# gráfico
 
 grafo4<-data.frame(modulo.q)
 nombres<-names(modulo4)[1:18]
@@ -334,24 +361,24 @@ grafo4$nombres<-nombres
 
 
 
-modulo5$total<-rowSums(modulo5[,1:14], na.rm = T)
+modulo5$total<-rowSums(modulo5, na.rm = T)
 
 modulo5$total.minutos<-modulo5$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo5[,1:14], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 1.25
+# total .52
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -364,14 +391,14 @@ for (i in modulo5[,1:14]){
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 1.19
+# total 1.35
 
-# gr?fico
+# gráfico
 
 grafo5<-data.frame(modulo.q)
 nombres<-names(modulo5)[1:14]
@@ -385,24 +412,24 @@ grafo5$nombres<-nombres
 
 
 
-modulo6$total<-rowSums(modulo6[,1:3], na.rm = T)
+modulo6$total<-rowSums(modulo6, na.rm = T)
 
 modulo6$total.minutos<-modulo6$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo6[,1:3], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 0.26
+# total 0.18
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -415,14 +442,14 @@ for (i in modulo6[,1:3]){
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 0.27
+# total 0.36
 
-# gr?fico
+# gráfico
 
 grafo6<-data.frame(modulo.q)
 nombres<-names(modulo6)[1:3]
@@ -435,24 +462,24 @@ grafo6$nombres<-nombres
 ###############################################################################
 
 
-modulo7$total<-rowSums(modulo7[,1:21], na.rm = T)
+modulo7$total<-rowSums(modulo7, na.rm = T)
 
 modulo7$total.minutos<-modulo7$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo7[,1:21], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 2.49
+# total 4.45
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -465,14 +492,14 @@ for (i in modulo7[,1:21]){
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 3.13
+# total 3.25
 
-# gr?fico
+# gráfico
 
 grafo7<-data.frame(modulo.q)
 nombres<-names(modulo7)[1:21]
@@ -485,43 +512,43 @@ grafo7$nombres<-nombres
 
 
 
-modulo8$total<-rowSums(modulo8[,1:22], na.rm = T)
+modulo8$total<-rowSums(modulo8, na.rm = T)
 
 modulo8$total.minutos<-modulo8$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo8[,1:22], na.rm = T) # en segundos
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 2.02
+# total 2.33
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
 # filas con preguntas
 
-for (i in modulo8[,1:22]){
+for (i in modulo8[,1:24]){
   objeto<-unname(i)
   registro<-quantile(objeto, prob =(0.75),na.rm=T)
   #print(registro)
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 2.23
+# total 3.13
 
-# gr?fico
+# gráfico
 
 grafo8<-data.frame(modulo.q)
 nombres<-names(modulo8)[1:24]
@@ -534,44 +561,44 @@ grafo8$nombres<-nombres
 ###############################################################################
 
 
-modulo9$total<-rowSums(modulo9[,1:4], na.rm = T)
+modulo9$total<-rowSums(modulo9, na.rm = T)
 
 modulo9$total.minutos<-modulo9$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo9[,1:4], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 0.31
+# total 0.47
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
 # filas con preguntas
 
-for (i in modulo9[,1:4]){
+for (i in modulo9[,1:9]){
   objeto<-unname(i)
   registro<-quantile(objeto, prob =(0.75),na.rm=T)
   #print(registro)
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 0.35
+# total 1
 
-# gr?fico
+# gráfico
 
 grafo9<-data.frame(modulo.q)
 nombres<-names(modulo9)[1:9]
@@ -585,45 +612,45 @@ grafo9$nombres<-nombres
 ###############################################################################
 
 
-modulo10$total<-rowSums(modulo10[,1:3], na.rm = T)
+modulo10$total<-rowSums(modulo10, na.rm = T)
 
 modulo10$total.minutos<-modulo10$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo10[,1:3], na.rm = T) # en segundos
 
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 0.25
+# total .31
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
 # filas con preguntas
 
-for (i in modulo10[,1:3]){
+for (i in modulo10[,1:8]){
   objeto<-unname(i)
   registro<-quantile(objeto, prob =(0.75),na.rm=T)
   #print(registro)
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 0.29
+# total 1.11
 
-# gr?fico
+# gráfico
 
 grafo10<-data.frame(modulo.q)
 nombres<-names(modulo10)[1:8]
@@ -638,24 +665,23 @@ grafo10$nombres<-nombres
 ###############################################################################
 
 
-modulo11$total<-rowSums(modulo11[,1:3], na.rm = T)
+modulo11$total<-rowSums(modulo11, na.rm = T)
 
 modulo11$total.minutos<-modulo11$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
 media.modulo<-colMeans(modulo11[,1:3], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 0.41
+# total 0.30
 
-
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -668,14 +694,14 @@ for (i in modulo11[,1:3]){
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 0.21
+# total 0.27
 
-# gr?fico
+# gráfico
 
 grafo11<-data.frame(modulo.q)
 nombres<-names(modulo11)[1:3]
@@ -687,44 +713,46 @@ grafo11$nombres<-nombres
 #################################  modulo 12r  #################################
 ###############################################################################
 
-modulo12r$total<-rowSums(modulo12r[,1:7], na.rm = T)
+
+
+modulo12r$total<-rowSums(modulo12r, na.rm = T)
 
 modulo12r$total.minutos<-modulo12r$total%/%60
 
-# media de duraci?n del modulo
+# media de duración del modulo
 
-media.modulo<-colMeans(modulo12r[,1:7], na.rm = T) # en segundos
+media.modulo<-colMeans(modulo12r[,1:14], na.rm = T) # en segundos
 
 
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 1.05
+# total 3.14
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
 # filas con preguntas
 
-for (i in modulo12r[,1:5]){
+for (i in modulo12r[,1:11]){
   objeto<-unname(i)
   registro<-quantile(objeto, prob =(0.75),na.rm=T)
   #print(registro)
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 1.01
+# total 1.19
 
-# gr?fico
+# gráfico
 
 grafo12r<-data.frame(modulo.q)
 nombres<-names(modulo12r)[1:11]
@@ -734,59 +762,24 @@ grafo12r$nombres<-nombres
 #################################  modulo 13  #################################
 ###############################################################################
 
-for (i in names(modulo13[1:28])){
- print(paste0("modulo13$",i,"<-as.numeric(modulo13$",i,")"))
-}
+modulo13$total<-rowSums(modulo13, na.rm = T)
 
-modulo13$S1_sexo_D<-as.numeric(modulo13$S1_sexo_D)
-modulo13$S2_edad_D<-as.numeric(modulo13$S2_edad_D)
-modulo13$S3_nacionalidad_D<-as.numeric(modulo13$S3_nacionalidad_D)
-modulo13$S4_nivel_estudio_D<-as.numeric(modulo13$S4_nivel_estudio_D)
-modulo13$S5_estudios_sostenedor_D<-as.numeric(modulo13$S5_estudios_sostenedor_D)
-modulo13$S6_actividad_principal_D<-as.numeric(modulo13$S6_actividad_principal_D)
-modulo13$S7_actividad_jefeHogar_D<-as.numeric(modulo13$S7_actividad_jefeHogar_D)
-modulo13$S8_ocupacion_D<-as.numeric(modulo13$S8_ocupacion_D)
-modulo13$S9_pueblo_originario_D<-as.numeric(modulo13$S9_pueblo_originario_D)
-modulo13$S11_personas_hogar_D<-as.numeric(modulo13$S11_personas_hogar_D)
-modulo13$S12_tramo_1_D<-as.numeric(modulo13$S12_tramo_1_D)
-modulo13$S12_tramo_2_D<-as.numeric(modulo13$S12_tramo_2_D)
-modulo13$S12_tramo_3_D<-as.numeric(modulo13$S12_tramo_3_D)
-modulo13$S12_tramo_4_D<-as.numeric(modulo13$S12_tramo_4_D)
-modulo13$S12_tramo_5_D<-as.numeric(modulo13$S12_tramo_5_D)
-modulo13$S12_tramo_6_D<-as.numeric(modulo13$S12_tramo_6_D)
-modulo13$S12_tramo_7_D<-as.numeric(modulo13$S12_tramo_7_D)
-modulo13$S13_lista_bienes_1_D<-as.numeric(modulo13$S13_lista_bienes_1_D)
-modulo13$S13_lista_bienes_2_D<-as.numeric(modulo13$S13_lista_bienes_2_D)
-modulo13$S13_lista_bienes_3_D<-as.numeric(modulo13$S13_lista_bienes_3_D)
-modulo13$S13_lista_bienes_4_D<-as.numeric(modulo13$S13_lista_bienes_4_D)
-modulo13$S_GSE_D<-as.numeric(modulo13$S_GSE_D)
-modulo13$S_A_D<-as.numeric(modulo13$S_A_D)
-modulo13$S_B_D<-as.numeric(modulo13$S_B_D)
-modulo13$S_p50_cel_D<-as.numeric(modulo13$S_p50_cel_D)
-modulo13$S_p50_tel_D<-as.numeric(modulo13$S_p50_tel_D)
-modulo13$S_p51_D<-as.numeric(modulo13$S_p51_D)
-modulo13$total<-as.numeric(modulo13$total)
-
-modulo13$total<-rowSums(modulo13[1:27], na.rm = T)
 modulo13$total.minutos<-modulo13$total%/%60
 
-# media de duraci?n del modulo
-# quitamos registros outliers
+# media de duración del modulo
 
-modulo13<-subset(modulo13, total.minutos<31)
 media.modulo<-colMeans(modulo13[,1:27], na.rm = T) # en segundos
 
 
-
-# media de duraci?n del m?dulo transformaci?n a minutos y segundos
+# media de duración del módulo transformación a minutos y segundos
 
 total<-sum(media.modulo, na.rm = T)
 duracion(total)
 
-# total 10.42
+# total 5.26
 
 
-# Media de cuartiles (se tom? el tercer cuartil como referencia)
+# Media de cuartiles (se tomó el tercer cuartil como referencia)
 
 modulo.q<-c()
 
@@ -799,69 +792,51 @@ for (i in modulo13[,1:27]){
   modulo.q<-append(modulo.q,registro)
 }
 
-# Duraci?n de modulo 1 de acuerdo al 3cuartil de duraci?n de las preguntas
+# Duración de modulo 1 de acuerdo al 3cuartil de duración de las preguntas
 
 total<-sum(modulo.q, na.rm = T)
 duracion(total)
 
-# total 14.04
+# total 16.32
 
-# duraci?n media de pregunta S_A_D 352 segundos; 5,52 minutos 
+# duración media de pregunta S_A_D 352 segundos; 5,52 minutos 
 
-# gr?fico
+# gráfico
 
 grafo12<-data.frame(modulo.q)
 nombres<-names(modulo11r)[1:27]
 grafo12$nombres<-nombres
 
-# Duraciones totales por entrevista
-
-totales<-data.frame(losrios$Srvyr)
-
-totales$m1.s <-modulo1$total
-totales$m2.s <-modulo2$total
-totales$m3.s <-modulo3$total
-totales$m4.s <-modulo4$total
-totales$m5.s <-modulo5$total
-totales$m6.s <-modulo6$total
-totales$m7.s <-modulo7$total
-totales$m8.s <-modulo8$total
-totales$m9.s <-modulo9$total
-totales$m10.s <-modulo10$total
-totales$m11.s <-modulo11$total
-totales$m12.s <-modulo12r$total
-totales$m13.s <-modulo13$total
-
-
-totales$suma.t<-rowSums(totales[2:14])
-totales$t.min<-duracion(totales$suma.t)
 
 
 
 
 
 
-duracion(1606.2)
 
 
 
 
 
-# automatizar a trav?s de un loop duraciones totales por individuo (no terminado)
+
+# automatizar a través de un loop duraciones totales por individuo (no terminado)
 
 for (i in 1){
-   resultado<-unname(rowSums(modulos[[i]], na.rm = T))
+  resultado<-unname(rowSums(modulos[[i]], na.rm = T))
   # print(resultado)
-   print(length(names(modulos[[i]])))
-   modulos[[i]][, length(names(modulos[[i]])) + 1]<-resultado
-   colnames(modulos[[i]])[length(names(modulos[[i]]))+1] <- paste0("new")
-   
+  print(length(names(modulos[[i]])))
+  modulos[[i]][, length(names(modulos[[i]])) + 1]<-resultado
+  colnames(modulos[[i]])[length(names(modulos[[i]]))+1] <- paste0("new")
+  
   # print(contador)
   # i[ , contador + 1] <- 1
+  
+}
 
-  }
 
 
+ejemplo <- list(a=c(0,0,1), b=c(0,0,2))
 
+sapply(ejemplo, sum)
 
 
