@@ -110,17 +110,14 @@ table(p5$comuna.alcalde)
 
 
 
-p5$p5_4rec<-ifelse((grepl('chepica.fabian|chepica.soto|chimbarongo.contreras|
-|chimbarongo.marcos|codegua.alexis|codegua.flores|coinco.juan|graneros.claudio|
-|graneros.segovia|las cabras.juan|las cabras.pablo|las cabras.paulo|litueche.acuna|
-|litueche.rene|litueche.tito|machali.abud|mostazal.escarate|mostazal.garate|mostazal.santiago|
-|olivar.estrella|olivar.maria|palmilla.gloria|paredones.antonii|paredones.antonio|
-|peralillo.caludio|peralillo.claudio|pichidegua.marcos|pichilemu.cristian|placilla.tulio|
-|pumanque.gonzalo|quinta de tilcoco.sebastian|rancagua.carlos|rancagua.gidoy|rancagua.godoy|
-|rancagua.gogoy|rancagua.jpablo|rancagua.jua|rancagua.juan|rancagua.ramon|rengo.carlos|rengo.soto|
-|requinoa.waldo|san fernando.pablo|san fernando.silva|san vicente.gonzalez|san vicente.jaime|
-|san vicente.jaimr|san vicente.jsimr|santa cruz.arevalo|santa cruz.gustavo|santa cruz.william|
-|santa cruz.williams', p5$comuna.alcalde)),
+p5$p5_4rec<-ifelse((grepl('bulnes.guillermo|bulnes.yeber|viejo.jorge|viejo.poso|
+                          |chillan.benavente|chillan.camili|chillan.camilo|
+                          |chillan.don|coelemu.alejandro|coihueco.carlos|coihueco.chandia|
+                          |carmen.don|carmen.jose|carmen.san|ninhue.luis|niquen.manuel|
+                          |pemuco.jhonson|portezuelo.rene|quillon.miguel|quillon.pena|
+                          |quirihue.richard|ranquil.nicolas|carlos.gasto|carlos.suazo|
+                          |carlos.william|fabian.almuna|ignacio.cesar|nicolas.hugo|
+                          |nicolas.victor|treguaco.raul|yungay.rafael', p5$comuna.alcalde)),
                    "conoce","no conoce")
 
 table(p5$comuna.alcalde,p5$p5_4rec)
@@ -134,31 +131,29 @@ table(p5$comuna.consejal)
 
 
 
-p5$p5_8rec<-ifelse((grepl('chepica.jaime|chimbarongo.jorge|chimbarongo.marisol|
-                          |chimbarongo.serio|chimbarongo.sergio|graneros.angelica|
-                          |graneros.bastian|graneros.claudina|graneros.jorge|
-                          |las cabras.fernando|las cabras.matias|litueche.claudia|
-                          |mostazal.jose|mostazal.sergio|olivar.eduaedo|olivar.eduardo|
-                          olivar.sergio|paredones.jose|paredones.nqldo|paredones.sami|
-                          |paredones.sotero|peralillo.don|peralillo.fabian|peralillo.jose|
-                          |peralillo.luis|peralillo.rivera|peralillo.soledad|pichidegua.mariegane|
-                          |pichidegua.merillan|pichidegua.miguel|placilla.daniela|placilla.marcelo|
-                          |placilla.santa|pumanque.emilio|pumanque.jaime|pumanque.sergio|
-                          |quinta de tilcoco.ricardo|quinta de tilcoco.roberto|rancagua.hugo|
-                          |rancagua.maricarmen|rancagua.patricio enrique|rengo.carlos|rengo.nicolas|
-                          |san fernando.carlos|san fernando.miguel|fernando.robert|vicente.daniel|
-                          |vicente.pavez|vicente.pilar|vicente.rojas|vicente.sebastian|vicente.victor|
-                          |cruz.luis|cruz.moreno|cruz.pina|cruz.roxana', p5$comuna.consejal)),
+p5$p5_8rec<-ifelse((grepl('bulnes.golzalo|bulnes.nelson|bulnes.troncoso|viejo.evelin|
+                          |chillan.careaga|chillan.cariaga|chillan.gustavi|chillan.josepe|
+                          |chillan.patricio|chillan.ricardo|chillan.wini|coelemu.carmen|
+                          |coelemu.natalia|coihueco.carlos|coihueco.erika|coihueco.luis|
+                          |coihueco.wilson|carmen.blanca|carmen.hugo|ninhue.carlita|
+                          |portezuelo.alan|portezuelo.ibanez|portezuelo.juan|portezuelo.modesto|
+                          |quillon.felipe|carlos.loerna|carlos.lorena|carlos.pedro|
+                          |carlos.rafael|carlos.silva|nicolas.antonio|nicolas.julio|
+                          |nicolas.palavecinos|treguaco.pedro|yungay.patricia|yungay.rojas|
+                          |yungay.vertita', p5$comuna.consejal)),
                    "conoce","no conoce")
 
 table(p5$comuna.consejal,p5$p5_8rec)
 
 ##############################      PEGADO        ##############################
 
-p5recod<-p5 %>% select(SbjNum,ends_with("rec"))
+# p5recod<-p5 %>% select(SbjNum,ends_with("rec"))
+# 
+# baro1<-merge(baro1, p5recod, all.x = T)
 
-baro1<-merge(baro1, p5recod, all.x = T)
+p5$comuna.alcalde<-NULL
+p5$comuna.consejal<-NULL
 
 ########
 
-write_sav(baro1, "ohiggins3.sav")
+write_sav(p5, "nhuble.p5.sav")
