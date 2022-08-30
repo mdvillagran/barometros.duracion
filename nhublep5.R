@@ -123,7 +123,7 @@ p5$p5_4rec<-ifelse((grepl('bulnes.guillermo|bulnes.yeber|viejo.jorge|viejo.poso|
 table(p5$comuna.alcalde,p5$p5_4rec)
 
 
-# Consejal
+# Concejal
 
 p5$comuna.consejal<-paste0(p5$comuna,".",p5$p5_8)
 
