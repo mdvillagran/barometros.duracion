@@ -17,11 +17,13 @@ baro1<-read_sav("Barometro_2022-abr-22_2022_22_08_10_28.sav")
 
 # Filtrado por región
 
-baro<-subset(baro1, region==16)
+baro<-subset(baro1, region==9)
 
 baro<- baro %>% filter(Status %in% c("Approved", "Requires Approval"))
 
 baro <- baro[!is.na(baro$S1_sexo),]
+
+table(baro$comuna)
 
 
 ################################################################################
